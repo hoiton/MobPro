@@ -12,6 +12,7 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,6 +27,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -34,7 +37,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -75,30 +81,20 @@ fun HomeScreen(navHostController: NavHostController, modifier: Modifier = Modifi
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary
         )
-        TextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp),
-            value = text,
-            onValueChange = { text = it },
-            label = {
-                Text(text = "Label")
-            }
-        )
-        TextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp),
-            value = number.toString(),
-            onValueChange = { number = it.toIntOrNull() ?: 0 },
-            label = {
-                Text(text = "Label")
-            },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number
-            )
+        BandsView(
+            navHostController = navHostController
         )
         Spacer(modifier = Modifier.weight(1f))
+        Button(
+            modifier = Modifier.align(Alignment.End),
+            onClick =  {
+                navHostController.navigate(DemoApplicationScreens.Electronics.name)
+            }
+        ) {
+            Text(
+                text = "Go to Electronics Screen",
+            )
+        }
         Button(
             modifier = Modifier.align(Alignment.End),
             onClick =  {
@@ -197,6 +193,32 @@ fun DemoAppNavHost(
                 text = text,
                 navHostController = navHostController)
         }
+        composable(
+            route = "${DemoApplicationScreens.BandInfo.name}/{bandCode}",
+            arguments = listOf(
+                navArgument("bandCode") {
+                    type = NavType.StringType
+                }
+            )
+        ) { navBackStackEntry ->
+            val bandCode = navBackStackEntry.arguments?.getString("bandCode") ?: ""
+            CurrentBand(
+                bandCode = bandCode
+            )
+        }
+        composable(
+            route = DemoApplicationScreens.Electronics.name
+        ) {
+            ElectronicsView()
+        }
+    }
+}
+
+@Preview(showBackground = true, device = Devices.PIXEL, locale = "en-US")
+@Composable
+fun DetailScreenPreview() {
+    MyDemoTheme {
+        DetailScreen("helooo", rememberNavController(), modifier = Modifier.fillMaxWidth())
     }
 }
 
@@ -245,6 +267,25 @@ fun DetailScreen(senderText: String,
 }
 
 @Composable
+fun ElectronicsView(viewModel: DeviceViewModel = viewModel()) {
+    LaunchedEffect(Unit) {
+        viewModel.requestElectronicsFromServer()
+    }
+
+    val electronics by viewModel.electronicsFlow.collectAsState()
+    Column (
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        electronics.forEach { electronic ->
+            Text(
+                text = electronic.name
+            )
+        }
+    }
+}
+
+@Composable
 fun OverviewScreen(number: Number, text: String, navHostController: NavHostController) {
     Column {
         Text("Number: $number")
@@ -261,4 +302,6 @@ enum class DemoApplicationScreens {
     Home,
     Detail,
     Overview,
+    BandInfo,
+    Electronics
 }

@@ -9,6 +9,11 @@ lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.8.0"
 composeBom = "2024.04.01"
 composeNavigation="2.8.7"
+kotlinxSerialization = "1.6.3"
+retrofit = "2.9.0"
+retrofitKotlinxSerializationConverter = "1.0.0"
+okHttp = "4.12.0"
+coil = "3.0.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -26,9 +31,15 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-navigation = { group = "androidx.navigation", name = "navigation-compose", version.ref = "composeNavigation" }
+android-kotlinx-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-kotlinx-serialization-converter = { group = "com.jakewharton.retrofit", name = "retrofit2-kotlinx-serialization-converter", version.ref = "retrofitKotlinxSerializationConverter" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okHttp" }
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
+coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-
+kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin"}
