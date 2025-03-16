@@ -1,6 +1,5 @@
 package com.example.mydemo
 
-import android.graphics.Paint.Align
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,31 +11,29 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -74,8 +71,8 @@ fun HomeScreen(navHostController: NavHostController, modifier: Modifier = Modifi
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        var text by remember { mutableStateOf("Some text") }
-        var number by remember { mutableIntStateOf(0) }
+        val text by remember { mutableStateOf("Some text") }
+        val number by remember { mutableIntStateOf(0) }
         Text(
             text = "Welcome to the home Screen",
             style = MaterialTheme.typography.headlineMedium,
@@ -268,19 +265,39 @@ fun DetailScreen(senderText: String,
 
 @Composable
 fun ElectronicsView(viewModel: DeviceViewModel = viewModel()) {
-    LaunchedEffect(Unit) {
-        viewModel.requestElectronicsFromServer()
-    }
+    viewModel.requestElectronicsFromServer()
 
     val electronics by viewModel.electronicsFlow.collectAsState()
     Column (
         modifier = Modifier
-            .fillMaxSize()
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
         electronics.forEach { electronic ->
-            Text(
-                text = electronic.name
-            )
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = electronic.name,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    electronic.data?.let { data ->
+                        data.year?.let { year ->
+                            Text(text = "Year: $year", style = MaterialTheme.typography.bodyMedium)
+                        }
+                        data.price?.let { price ->
+                            Text(text = "Price: $price", style = MaterialTheme.typography.bodyMedium)
+                        }
+                        data.cpuModel?.let { cpu ->
+                            Text(text = "CPU Model: $cpu", style = MaterialTheme.typography.bodyMedium)
+                        }
+                    }
+                }
+            }
         }
     }
 }
