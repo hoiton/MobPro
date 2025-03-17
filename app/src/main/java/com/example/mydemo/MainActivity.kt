@@ -49,6 +49,7 @@ import com.example.mydemo.ui.bands.CurrentBand
 import com.example.mydemo.ui.device.DeviceViewModel
 import com.example.mydemo.ui.device.ElectronicsView
 import com.example.mydemo.ui.theme.MyDemoTheme
+import com.example.mydemo.ui.user.UserView
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,6 +87,16 @@ fun HomeScreen(navHostController: NavHostController, modifier: Modifier = Modifi
             navHostController = navHostController
         )
         Spacer(modifier = Modifier.weight(1f))
+        Button(
+            modifier = Modifier.align(Alignment.End),
+            onClick =  {
+                navHostController.navigate(DemoApplicationScreens.Users.name)
+            }
+        ) {
+            Text(
+                text = "Users",
+            )
+        }
         Button(
             modifier = Modifier.align(Alignment.End),
             onClick =  {
@@ -212,6 +223,11 @@ fun DemoAppNavHost(
         ) {
             ElectronicsView()
         }
+        composable(
+            route = DemoApplicationScreens.Users.name
+        ) {
+            UserView()
+        }
     }
 }
 
@@ -285,5 +301,6 @@ enum class DemoApplicationScreens {
     Detail,
     Overview,
     BandInfo,
-    Electronics
+    Electronics,
+    Users
 }
