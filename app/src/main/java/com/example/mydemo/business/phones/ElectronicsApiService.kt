@@ -1,4 +1,4 @@
-package com.example.mydemo
+package com.example.mydemo.business.phones
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

@@ -44,6 +44,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.mydemo.ui.bands.BandsView
+import com.example.mydemo.ui.bands.CurrentBand
+import com.example.mydemo.ui.device.DeviceViewModel
+import com.example.mydemo.ui.device.ElectronicsView
 import com.example.mydemo.ui.theme.MyDemoTheme
 
 class MainActivity : ComponentActivity() {
@@ -258,45 +262,6 @@ fun DetailScreen(senderText: String,
                 onClick = { navHostController.popBackStack() }
             ) {
                 Text("Go Back")
-            }
-        }
-    }
-}
-
-@Composable
-fun ElectronicsView(viewModel: DeviceViewModel = viewModel()) {
-    viewModel.requestElectronicsFromServer()
-
-    val electronics by viewModel.electronicsFlow.collectAsState()
-    Column (
-        modifier = Modifier
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState())
-    ) {
-        electronics.forEach { electronic ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = electronic.name,
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    electronic.data?.let { data ->
-                        data.year?.let { year ->
-                            Text(text = "Year: $year", style = MaterialTheme.typography.bodyMedium)
-                        }
-                        data.price?.let { price ->
-                            Text(text = "Price: $price", style = MaterialTheme.typography.bodyMedium)
-                        }
-                        data.cpuModel?.let { cpu ->
-                            Text(text = "CPU Model: $cpu", style = MaterialTheme.typography.bodyMedium)
-                        }
-                    }
-                }
             }
         }
     }

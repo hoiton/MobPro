@@ -1,9 +1,8 @@
-package com.example.mydemo
+package com.example.mydemo.ui.bands
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
+import com.example.mydemo.DemoApplicationScreens
 
 @Composable
 fun BandsView(navHostController: NavHostController, viewModel: BandsViewModel = viewModel()) {

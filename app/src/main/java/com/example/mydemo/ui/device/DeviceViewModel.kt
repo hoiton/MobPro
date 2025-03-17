@@ -1,7 +1,9 @@
-package com.example.mydemo
+package com.example.mydemo.ui.device
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mydemo.business.phones.Electronic
+import com.example.mydemo.business.phones.ElectronicsApiService
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

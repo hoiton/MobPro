@@ -1,7 +1,10 @@
-package com.example.mydemo
+package com.example.mydemo.ui.bands
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mydemo.business.bands.BandCode
+import com.example.mydemo.business.bands.BandInfo
+import com.example.mydemo.business.bands.BandsApiService
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
