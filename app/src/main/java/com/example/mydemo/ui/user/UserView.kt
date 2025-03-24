@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -40,6 +41,7 @@ fun UserView(viewModel: UserViewModel = getUserViewModel()) {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         val user by viewModel.user.collectAsState()
+        var username by remember(user.name) { mutableStateOf(user.name) }
         var age by remember(user.age) { mutableIntStateOf(user.age) }
         var authorize by remember(user.authorized) { mutableStateOf(user.authorized) }
 
@@ -50,9 +52,9 @@ fun UserView(viewModel: UserViewModel = getUserViewModel()) {
         TextField(
             modifier = Modifier
                 .fillMaxWidth(),
-            value = user.name,
+            value = username,
             onValueChange = { value ->
-                viewModel.updateUser(user.copy(name = value))
+                username = value
             },
             label = { Text("Name") }
         )
@@ -77,6 +79,13 @@ fun UserView(viewModel: UserViewModel = getUserViewModel()) {
                 modifier = Modifier.padding(start = 16.dp, top = 10.dp),
                 text = "Authorize user"
             )
+        }
+        Button(
+            onClick = {
+                viewModel.updateUser(user.copy(name = username, age = age, authorized = authorize))
+            }
+        ) {
+            Text("Save")
         }
     }
 }
