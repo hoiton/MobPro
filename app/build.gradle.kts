@@ -41,7 +41,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -58,6 +57,7 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.network)
     implementation(libs.androidx.data.store.preferences)
+    implementation(libs.google.accompanist)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -1,5 +1,11 @@
 package com.example.mydemo
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.graphics.BitmapFactory
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,27 +23,22 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Devices
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -46,10 +47,12 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.mydemo.ui.bands.BandsView
 import com.example.mydemo.ui.bands.CurrentBand
-import com.example.mydemo.ui.device.DeviceViewModel
 import com.example.mydemo.ui.device.ElectronicsView
 import com.example.mydemo.ui.theme.MyDemoTheme
 import com.example.mydemo.ui.user.UserView
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,6 +90,7 @@ fun HomeScreen(navHostController: NavHostController, modifier: Modifier = Modifi
             navHostController = navHostController
         )
         Spacer(modifier = Modifier.weight(1f))
+        NotificationButtons()
         Button(
             modifier = Modifier.align(Alignment.End),
             onClick =  {
@@ -133,6 +137,53 @@ fun HomeScreen(navHostController: NavHostController, modifier: Modifier = Modifi
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.secondary
         )
+    }
+}
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun NotificationButtons() {
+    val context = LocalContext.current
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val notificationPermissionState = rememberPermissionState(
+            android.Manifest.permission.POST_NOTIFICATIONS
+        )
+        if (!notificationPermissionState.status.isGranted) {
+            Button(
+                onClick = { notificationPermissionState.launchPermissionRequest() }
+            ) {
+                Text("Request permission")
+            }
+        }
+    }
+    Button(
+        onClick = {
+            val channel = NotificationChannel(
+                "com.example.mydemo.channel",
+                "Music notifications",
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+
+            val notification = NotificationCompat
+                .Builder(context, "com.example.mydemo.channel")
+                .setContentTitle("HSLU Music Player")
+                .setContentText("musicTitle")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setOngoing(true)
+                .setSmallIcon(android.R.drawable.ic_media_play)
+                .setLargeIcon(BitmapFactory.decodeResource(context.resources, android.R.drawable.ic_media_play))
+                .setWhen(System.currentTimeMillis())
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .build()
+            notificationManager.notify(
+                23,
+                notification
+            )
+        }
+    ) {
+        Text("Show notification")
     }
 }
 
@@ -228,14 +279,6 @@ fun DemoAppNavHost(
         ) {
             UserView()
         }
-    }
-}
-
-@Preview(showBackground = true, device = Devices.PIXEL, locale = "en-US")
-@Composable
-fun DetailScreenPreview() {
-    MyDemoTheme {
-        DetailScreen("helooo", rememberNavController(), modifier = Modifier.fillMaxWidth())
     }
 }
 
