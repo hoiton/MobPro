@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">myDemo</string>
+    <string name="musicplayerservice_desc">Music Player</string>
 </resources>

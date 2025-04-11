@@ -4,6 +4,7 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
@@ -33,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -45,6 +47,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.mydemo.business.services.MusicPlayerService
 import com.example.mydemo.ui.bands.BandsView
 import com.example.mydemo.ui.bands.CurrentBand
 import com.example.mydemo.ui.device.ElectronicsView
@@ -143,6 +146,8 @@ fun HomeScreen(navHostController: NavHostController, modifier: Modifier = Modifi
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun NotificationButtons() {
+    var toggle by remember { mutableStateOf(false) }
+
     val context = LocalContext.current
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         val notificationPermissionState = rememberPermissionState(
@@ -158,32 +163,18 @@ fun NotificationButtons() {
     }
     Button(
         onClick = {
-            val channel = NotificationChannel(
-                "com.example.mydemo.channel",
-                "Music notifications",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-
-            val notification = NotificationCompat
-                .Builder(context, "com.example.mydemo.channel")
-                .setContentTitle("HSLU Music Player")
-                .setContentText("musicTitle")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setOngoing(true)
-                .setSmallIcon(android.R.drawable.ic_media_play)
-                .setLargeIcon(BitmapFactory.decodeResource(context.resources, android.R.drawable.ic_media_play))
-                .setWhen(System.currentTimeMillis())
-                .setCategory(Notification.CATEGORY_SERVICE)
-                .build()
-            notificationManager.notify(
-                23,
-                notification
-            )
+            if (toggle) {
+                val intent = Intent(context, MusicPlayerService::class.java)
+                context.stopService(intent)
+            }
+            else {
+                val intent = Intent(context, MusicPlayerService::class.java)
+                context.startForegroundService(intent)
+            }
+            toggle = !toggle;
         }
     ) {
-        Text("Show notification")
+        Text("Toggle notification")
     }
 }
 
