@@ -3,6 +3,10 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlinx.serialization)
+//    alias(libs.plugins.dagger.hilt)
+//    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlinAndroidKsp)
+    alias(libs.plugins.hiltAndroid)
 }
 
 android {
@@ -58,6 +62,12 @@ dependencies {
     implementation(libs.coil.network)
     implementation(libs.androidx.data.store.preferences)
     implementation(libs.google.accompanist)
+//    implementation(libs.dagger.hilt)
+//    ksp(libs.dagger.hilt.compiler)
+//    implementation(libs.androidx.hilt.navigation)
+    implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.navigation.compose)
+    ksp(libs.hilt.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -67,3 +77,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 }
 
+//ksp {
+//    arg("dagger.hilt.disableModulesValidation", "true")
+//}

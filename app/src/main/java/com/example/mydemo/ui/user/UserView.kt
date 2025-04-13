@@ -19,23 +19,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.mydemo.business.user.UserRepositoryPreferences
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
-private fun getUserViewModel(): UserViewModel {
-    val userRepository = UserRepositoryPreferences(LocalContext.current)
-    val userViewModel: UserViewModel = viewModel(
-        factory = UserViewModelFactory(userRepository)
-    )
-    return userViewModel
-}
-
-@Composable
-fun UserView(viewModel: UserViewModel = getUserViewModel()) {
+fun UserView(viewModel: UserViewModel = hiltViewModel()) {
     Column (
         modifier = Modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)

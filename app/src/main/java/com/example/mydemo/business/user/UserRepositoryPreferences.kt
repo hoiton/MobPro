@@ -6,11 +6,13 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class UserRepositoryPreferences(
-    private val context: Context
+class UserRepositoryPreferences @Inject constructor(
+    @ApplicationContext private val context: Context
 ) {
     companion object {
         private const val USER_PREFERENCES_NAME = "user_preferences"
