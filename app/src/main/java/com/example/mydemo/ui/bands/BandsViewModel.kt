@@ -6,6 +6,7 @@ import com.example.mydemo.business.bands.BandCode
 import com.example.mydemo.business.bands.BandInfo
 import com.example.mydemo.business.bands.BandsApiService
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -18,25 +19,17 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import java.net.HttpURLConnection
+import javax.inject.Inject
 
-class BandsViewModel : ViewModel() {
-    companion object {
-        private val contentType = "application/json".toMediaType()
-    }
-
+@HiltViewModel
+class BandsViewModel @Inject constructor(
+    private val bandsService: BandsApiService
+) : ViewModel() {
     private val _bandsFlow: MutableStateFlow<List<BandCode>> = MutableStateFlow(emptyList())
     val bandsFlow: StateFlow<List<BandCode>> = _bandsFlow
 
     private val _currentBand: MutableSharedFlow<BandInfo?> = MutableSharedFlow()
     val currentBand: Flow<BandInfo?> = _currentBand
-
-    private val retrofit = Retrofit.Builder()
-        .client(OkHttpClient().newBuilder().build())
-        .addConverterFactory(Json.asConverterFactory(contentType))
-        .baseUrl("https://wherever.ch/hslu/rock-bands/")
-        .build()
-
-    private val bandsService = retrofit.create(BandsApiService::class.java);
 
     fun requestBandCodesFromServer() {
         viewModelScope.launch {
@@ -46,6 +39,7 @@ class BandsViewModel : ViewModel() {
             }
         }
     }
+
     private suspend fun getBandCodesFromServer(): List<BandCode>? {
         return withContext(Dispatchers.IO) {
             val response = bandsService.getBandNames()
