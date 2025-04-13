@@ -24,7 +24,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -32,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -51,6 +60,10 @@ import com.example.mydemo.business.services.MusicPlayerService
 import com.example.mydemo.ui.bands.BandsView
 import com.example.mydemo.ui.bands.CurrentBand
 import com.example.mydemo.ui.device.ElectronicsView
+import com.example.mydemo.ui.navigation.BottomNavigation
+import com.example.mydemo.ui.navigation.BottomNavigationItem
+import com.example.mydemo.ui.navigation.DemoApplicationScreens
+import com.example.mydemo.ui.navigation.TopBar
 import com.example.mydemo.ui.theme.MyDemoTheme
 import com.example.mydemo.ui.user.UserView
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -66,10 +79,54 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyDemoTheme {
                 val navController = rememberNavController()
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                val navigationItems = remember {
+                    mutableStateListOf(
+                        BottomNavigationItem(
+                            route = DemoApplicationScreens.Home.name,
+                            title = DemoApplicationScreens.Home.name,
+                            selectedIcon = Icons.Filled.Home,
+                            unselectedIcon = Icons.Outlined.Home,
+                            hasNews = false
+                        ),
+                        BottomNavigationItem(
+                            route = DemoApplicationScreens.Users.name,
+                            title = DemoApplicationScreens.Users.name,
+                            selectedIcon = Icons.Filled.Person,
+                            unselectedIcon = Icons.Outlined.Person,
+                            hasNews = false
+                        ),
+                        BottomNavigationItem(
+                            route = DemoApplicationScreens.Electronics.name,
+                            title = DemoApplicationScreens.Electronics.name,
+                            selectedIcon = Icons.Filled.Star,
+                            unselectedIcon = Icons.Outlined.Star,
+                            hasNews = true,
+                        )
+                    )
+                }
+                Scaffold(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    bottomBar = {
+                        BottomNavigation(
+                            navController = navController,
+                            items = navigationItems
+                        )
+                    },
+                    topBar = {
+                        TopBar(
+                            navController = navController,
+                        )
+                    }
+                ) { innerPadding ->
                     DemoAppNavHost(
                         navHostController = navController,
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        onUpdateBandsCount = { count ->
+                            navigationItems[0] = navigationItems[0].copy(
+                                badgeCount = count
+                            )
+                        }
                     )
                 }
             }
@@ -78,132 +135,59 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun HomeScreen(navHostController: NavHostController, modifier: Modifier = Modifier) {
+fun HomeScreen(
+    navHostController: NavHostController,
+    onUpdateBandsCount: (Int) -> Unit
+) {
     Column (
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        val text by remember { mutableStateOf("Some text") }
-        val number by remember { mutableIntStateOf(0) }
         Text(
             text = "Welcome to the home Screen",
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary
         )
         BandsView(
-            navHostController = navHostController
-        )
-        Spacer(modifier = Modifier.weight(1f))
-        NotificationButtons()
-        Button(
-            modifier = Modifier.align(Alignment.End),
-            onClick =  {
-                navHostController.navigate(DemoApplicationScreens.Users.name)
-            }
-        ) {
-            Text(
-                text = "Users",
-            )
-        }
-        Button(
-            modifier = Modifier.align(Alignment.End),
-            onClick =  {
-                navHostController.navigate(DemoApplicationScreens.Electronics.name)
-            }
-        ) {
-            Text(
-                text = "Go to Electronics Screen",
-            )
-        }
-        Button(
-            modifier = Modifier.align(Alignment.End),
-            onClick =  {
-                navHostController.navigate("${DemoApplicationScreens.Detail.name}/HomeScreen")
-            }
-        ) {
-            Text(
-                text = "Go to detail Screen",
-            )
-        }
-        Button(
-            modifier = Modifier.align(Alignment.End),
-            onClick =  {
-                navHostController.navigate("${DemoApplicationScreens.Overview.name}/$number?text=$text")
-            }
-        ) {
-            Text(
-                text = "Go to overview Screen",
-            )
-        }
-        Text(
-            modifier = Modifier.align(Alignment.End),
-            text = "With the button above, you can navigate to a new screen",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.secondary
+            navHostController = navHostController,
+            onUpdateBandsCount = onUpdateBandsCount
         )
     }
 }
-
-@OptIn(ExperimentalPermissionsApi::class)
-@Composable
-fun NotificationButtons() {
-    var toggle by remember { mutableStateOf(false) }
-
-    val context = LocalContext.current
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        val notificationPermissionState = rememberPermissionState(
-            android.Manifest.permission.POST_NOTIFICATIONS
-        )
-        if (!notificationPermissionState.status.isGranted) {
-            Button(
-                onClick = { notificationPermissionState.launchPermissionRequest() }
-            ) {
-                Text("Request permission")
-            }
-        }
-    }
-    Button(
-        onClick = {
-            if (toggle) {
-                val intent = Intent(context, MusicPlayerService::class.java)
-                context.stopService(intent)
-            }
-            else {
-                val intent = Intent(context, MusicPlayerService::class.java)
-                context.startForegroundService(intent)
-            }
-            toggle = !toggle;
-        }
-    ) {
-        Text("Toggle notification")
-    }
-}
-
 
 @Composable
 fun DemoAppNavHost(
     navHostController: NavHostController,
-    modifier: Modifier
+    modifier: Modifier,
+    onUpdateBandsCount: (Int) -> Unit
 ) {
     NavHost(
         navController = navHostController,
         startDestination = DemoApplicationScreens.Home.name,
-        modifier = modifier
+        modifier = modifier.fillMaxSize()
     ) {
         composable(route = DemoApplicationScreens.Home.name) {
             HomeScreen(
                 navHostController = navHostController,
-                modifier = modifier
+                onUpdateBandsCount = onUpdateBandsCount
             )
         }
         composable(
-            route = "${DemoApplicationScreens.Detail.name}/{senderText}",
+            route = "${DemoApplicationScreens.BandInfo.name}/{bandCode}",
             arguments = listOf(
-                navArgument("senderText") {
+                navArgument("bandCode") {
                     type = NavType.StringType
                 }
-            ),
+            )
+        ) { navBackStackEntry ->
+            val bandCode = navBackStackEntry.arguments?.getString("bandCode") ?: ""
+            CurrentBand(
+                bandCode = bandCode
+            )
+        }
+        composable(
+            route = DemoApplicationScreens.Electronics.name,
             enterTransition = {
                 fadeIn(
                     animationSpec = tween(
@@ -224,46 +208,7 @@ fun DemoAppNavHost(
                     towards = AnimatedContentTransitionScope.SlideDirection.End
                 )
             }
-        ) { navBackStackEntry ->
-            val senderText = navBackStackEntry.arguments?.getString("senderText") ?: "error"
-            DetailScreen(
-                senderText = senderText,
-                navHostController = navHostController,
-                modifier = modifier)
-        }
-        composable(
-            route = "${DemoApplicationScreens.Overview.name}/{number}?text={text}",
-            arguments = listOf(
-                navArgument("number") {
-                    type = NavType.IntType
-                },
-                navArgument("text") {
-                    type = NavType.StringType
-                }
-            )
-        ) { navBackStackEntry ->
-            val number = navBackStackEntry.arguments?.getInt("number") ?: -1
-            val text = navBackStackEntry.arguments?.getString("text") ?: ""
-            OverviewScreen(
-                number = number,
-                text = text,
-                navHostController = navHostController)
-        }
-        composable(
-            route = "${DemoApplicationScreens.BandInfo.name}/{bandCode}",
-            arguments = listOf(
-                navArgument("bandCode") {
-                    type = NavType.StringType
-                }
-            )
-        ) { navBackStackEntry ->
-            val bandCode = navBackStackEntry.arguments?.getString("bandCode") ?: ""
-            CurrentBand(
-                bandCode = bandCode
-            )
-        }
-        composable(
-            route = DemoApplicationScreens.Electronics.name
+
         ) {
             ElectronicsView()
         }
@@ -273,70 +218,4 @@ fun DemoAppNavHost(
             UserView()
         }
     }
-}
-
-@Composable
-fun DetailScreen(senderText: String,
-                 navHostController: NavHostController,
-                 modifier: Modifier) {
-    Column (
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Column (
-            modifier = Modifier.weight(1f).fillMaxWidth(),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            Row (
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(text = "Oben Anfang")
-                Text(text = "Oben Ende")
-            }
-            Text(modifier = Modifier.align(Alignment.CenterHorizontally), text = "Oben Mitte")
-            Text(modifier = Modifier.align(Alignment.End), text = "Mitte Ende")
-            Text(modifier = Modifier.align(Alignment.CenterHorizontally), text = "Unten Mitte")
-            Text(text = "Unten Anfang")
-        }
-        Row (
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                modifier = Modifier.align(Alignment.Bottom),
-                text = "Welcome to DetailScreen from $senderText",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.secondary
-            )
-            Button(
-                onClick = { navHostController.popBackStack() }
-            ) {
-                Text("Go Back")
-            }
-        }
-    }
-}
-
-@Composable
-fun OverviewScreen(number: Number, text: String, navHostController: NavHostController) {
-    Column {
-        Text("Number: $number")
-        Text("Number: $text")
-        Button(onClick =  {
-            navHostController.navigate("${DemoApplicationScreens.Detail.name}/OverviewScreen")
-        }) {
-            Text("To to DetailScreen")
-        }
-    }
-}
-
-enum class DemoApplicationScreens {
-    Home,
-    Detail,
-    Overview,
-    BandInfo,
-    Electronics,
-    Users
 }

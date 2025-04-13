@@ -24,7 +24,7 @@ fun ElectronicsView(viewModel: DeviceViewModel = viewModel()) {
     val electronics by viewModel.electronicsFlow.collectAsState()
     Column (
         modifier = Modifier
-            .padding(16.dp)
+            .padding(start = 16.dp, end = 16.dp)
             .verticalScroll(rememberScrollState())
     ) {
         electronics.forEach { electronic ->

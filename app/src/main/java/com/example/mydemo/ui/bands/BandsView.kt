@@ -16,14 +16,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
-import com.example.mydemo.DemoApplicationScreens
+import com.example.mydemo.ui.navigation.DemoApplicationScreens
 
 @Composable
-fun BandsView(navHostController: NavHostController, viewModel: BandsViewModel = hiltViewModel()) {
+fun BandsView(
+    navHostController: NavHostController,
+    viewModel: BandsViewModel = hiltViewModel(),
+    onUpdateBandsCount: (Int) -> Unit
+) {
     val bands by viewModel.bandsFlow.collectAsState()
+    if (bands.isNotEmpty()) {
+        onUpdateBandsCount(bands.size)
+    }
     Column (
         verticalArrangement = Arrangement.Center
     ){
@@ -56,7 +62,7 @@ fun BandsView(navHostController: NavHostController, viewModel: BandsViewModel = 
 @Composable
 fun CurrentBand(
     bandCode: String,
-    viewModel: BandsViewModel = viewModel()
+    viewModel: BandsViewModel = hiltViewModel<BandsViewModel>()
 ) {
     viewModel.requestBandInfoFromServer(bandCode)
     val currentBand by viewModel.currentBand.collectAsState(null)

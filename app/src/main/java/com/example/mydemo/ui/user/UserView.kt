@@ -26,7 +26,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @Composable
 fun UserView(viewModel: UserViewModel = hiltViewModel()) {
     Column (
-        modifier = Modifier.padding(16.dp),
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         val user by viewModel.user.collectAsState()
@@ -34,10 +34,6 @@ fun UserView(viewModel: UserViewModel = hiltViewModel()) {
         var age by remember(user.age) { mutableIntStateOf(user.age) }
         var authorize by remember(user.authorized) { mutableStateOf(user.authorized) }
 
-        Text(
-            style = MaterialTheme.typography.headlineSmall,
-            text = "Welcome to the User-Screen"
-        )
         TextField(
             modifier = Modifier
                 .fillMaxWidth(),
